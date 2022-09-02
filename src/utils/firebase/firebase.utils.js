@@ -10,7 +10,16 @@ import {
     onAuthStateChanged,
 } from 'firebase/auth';
 
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    collection,
+    writeBatch,
+    query,
+    getDocs,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: 'AIzaSyDuTZmSXtsTx-hjxr_69XZpZ3CjSfw513c',
@@ -36,6 +45,35 @@ export const signInWithGoogleRedirect = () =>
 
 export const db = getFirestore();
 
+export const addCollectionAndDocuments = async (
+    collectionKey,
+    objectsToAdd,
+    field
+) => {
+    const collectionRef = collection(db, collectionKey);
+    const batch = writeBatch(db);
+
+    objectsToAdd.forEach((object) => {
+        const docRef = doc(collectionRef, object[field].toLowerCase());
+        batch.set(docRef, object);
+    });
+
+    await batch.commit();
+};
+
+export const getCategoriesAndDocuments = async () => {
+    const collectionRef = collection(db, 'categories');
+    const q = query(collectionRef);
+
+    const querySnapshot = await getDocs(q);
+    const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+        const { title, items } = docSnapshot.data();
+        acc[title.toLowerCase()] = items;
+        return acc;
+    }, {});
+    return categoryMap;
+};
+
 export const createUserDocumentFromAuth = async (
     userAuth,
     additionalInformation = {}
@@ -57,7 +95,6 @@ export const createUserDocumentFromAuth = async (
         } catch (error) {
             console.error('error creating the user', error);
         }
-    } else {
     }
 
     return userDocRef;
