@@ -7,11 +7,11 @@ import {
 import { selectCartItems } from '../../store/cart/cart.selector';
 import { CheckoutItemContainer, RemoveButton } from './checkout-item.styles';
 import { CartItem } from '../../store/cart/cart.types';
-import React from 'react';
+import React, { memo } from 'react';
 
 type CheckoutItemProps = { cartItem: CartItem };
 
-const CheckoutItem: React.FC<CheckoutItemProps> = ({ cartItem }) => {
+const CheckoutItem: React.FC<CheckoutItemProps> = memo(({ cartItem }) => {
     const { name, imageUrl, quantity, price } = cartItem;
 
     const cartItems = useSelector(selectCartItems);
@@ -50,6 +50,6 @@ const CheckoutItem: React.FC<CheckoutItemProps> = ({ cartItem }) => {
             </RemoveButton>
         </CheckoutItemContainer>
     );
-};
+});
 
 export default CheckoutItem;
